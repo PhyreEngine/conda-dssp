@@ -16,12 +16,12 @@ You should be able to build this package by simply running `conda build .`.
 
 This recipe applies two patches:
 
-`makefile.patch`
+* `makefile.patch`
     This patch alters the supplied Makefile to play nicely with `conda build`.
     The patch allows `conda build`'s environment variables to pass through,
     and writes the man page to `$PREFIX/share/man`.
 
-`tuple.patch`
+* `tuple.patch`
     Removes obsolete references to `std::tr1::tuple`, replacing them with
     `std::tuple`.
 
