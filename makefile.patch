@@ -1,0 +1,79 @@
+--- a/makefile	2018-01-30 19:22:08.233554593 +0000
++++ b/makefile	2018-01-31 11:50:08.359557683 +0000
+@@ -11,36 +11,32 @@
+ 
+ all: mkdssp
+ 
+-include make.config
+ 
+ VERSION				= 2.2.1
+ 
+ DEST_DIR			?= /usr/local
+-LIB_DIR				= $(BOOST_LIB_DIR)
+-INC_DIR				= $(BOOST_INC_DIR)
+ BIN_DIR				= $(DEST_DIR)/bin
+-MAN_DIR				= $(DEST_DIR)/man/man1
++MAN_DIR				= $(DEST_DIR)/share/man/man1
+ 
+ BOOST_LIBS			= thread filesystem program_options iostreams system
+ LIBS				= $(BOOST_LIBS:%=boost_%$(BOOST_LIB_SUFFIX)) z bz2
+ 
+ DEFINES				= USE_COMPRESSION LINUX VERSION='"$(VERSION)"'
+-CXX					= g++
+ 
+-CFLAGS				+= $(INC_DIR:%=-I%) -iquote src -g -Wall -Wno-multichar -pthread
+-LDOPTS				+= $(LIB_DIR:%=-L%) $(LIBS:%=-l%) -g -pthread
++DSSP_CXXFLAGS		+= $(INC_DIR:%=-I%) -iquote src -g -Wall -Wno-multichar -pthread -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0
++DSSP_LDOPTS			+= $(LIB_DIR:%=-L%) $(LIBS:%=-l%) -g -pthread
+ 
+ OBJ_DIR				= obj
+ 
+ ifeq ($(DEBUG),1)
+ OBJ_DIR				:= $(OBJ_DIR).dbg
+-CFLAGS				+= -g3
++DSSP_CXXFLAGS		+= -g3
+ else
+ DEFINES				+= NDEBUG
+-CFLAGS				+= -O3
++DSSP_CXXFLAGS		+= -O3
+ endif
+ 
+-CFLAGS				+= $(DEFINES:%=-D%)
++DSSP_CXXFLAGS		+= $(DEFINES:%=-D%)
+ 
+ DIST_NAME			= dssp-$(VERSION)
+ 
+@@ -49,19 +45,17 @@
+ OBJECTS = $(OBJ_DIR)/mkdssp.o $(OBJ_DIR)/dssp.o $(OBJ_DIR)/primitives-3d.o $(OBJ_DIR)/structure.o $(OBJ_DIR)/utils.o $(OBJ_DIR)/mas.o $(OBJ_DIR)/iocif.o
+ 
+ mkdssp: $(OBJECTS)
+-	@ echo linking $@
+-	@ $(CXX) -static -o $@ $^ $(LDOPTS)
++	$(CXX) -o $@ $^ $(DSSP_LDOPTS) $(LDFLAGS)
+ 
+ include $(OBJECTS:%.o=%.d)
+ 
+ $(OBJECTS:.o=.d):
+ 
+ $(OBJ_DIR):
+-	@ mkdir -p $(OBJ_DIR)
++	mkdir -p $(OBJ_DIR)
+ 
+ $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
+-	@ echo compiling $@
+-	@ $(CXX) -MD -c -o $@ $< $(CFLAGS)
++	$(CXX) -MD -c -o $@ $< $(DSPP_CFLAGS) $(CXXFLAGS)
+ 
+ clean:
+ 	install -d $(BIN_DIR) $(MAN_DIR)
+@@ -86,10 +80,3 @@
+ 	tar czf $(DIST_NAME).tgz $(DIST_NAME)
+ 	cp $(DIST_NAME).tgz dssp_$(VERSION).orig.tar.gz
+ 
+-make.config:
+-	@echo "creating empty make.config file"
+-	@echo "# Set local options for make here" > make.config
+-	@echo "#BOOST_LIB_SUFFIX = -mt" >> make.config
+-	@echo "#BOOST_LIB_DIR    = $(HOME)/projects/boost/lib" >> make.config
+-	@echo "#BOOST_INC_DIR    = $(HOME)/projects/boost/include" >> make.config
+-

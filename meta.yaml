@@ -1,0 +1,39 @@
+{% set name = "dssp" %}
+{% set version = "3.0.0" %}
+# sha256 is the prefered checksum -- you can get it for a file with:
+#  `openssl sha256 <file name>`.
+# You may need the openssl package, available on conda-forge
+#  `conda install openssl -c conda-forge``
+
+package:
+  name: {{ name | lower }}
+  version: {{ version }}
+
+source:
+  url: ftp://ftp.cmbi.ru.nl/pub/software/dssp/dssp-{{ version }}.tgz
+  sha256: 25d39a2107767b622a59dd9fa790112c1516564b8518fc6ac0fab081d5ac3ab0
+  patches:
+  - makefile.patch
+  - tuple.patch
+
+build:
+  script: |
+    make
+    make DEST_DIR="$PREFIX" install
+
+requirements:
+  run:
+    - libboost
+    - bzip2
+    - zlib
+  host:
+    - boost
+    - libboost
+    - bzip2
+    - zlib
+  build:
+    - {{ compiler('cxx') }}
+
+about:
+  home: http://www.cmbi.ru.nl/dssp.html
+  license: boost

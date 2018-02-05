@@ -1,0 +1,112 @@
+diff -u -r a/src/dssp.cpp b/src/dssp.cpp
+--- a/src/dssp.cpp	2017-09-21 10:42:09.000000000 +0100
++++ b/src/dssp.cpp	2018-01-30 20:07:34.211038440 +0000
+@@ -20,6 +20,7 @@
+ #include <ctype.h>
+ #endif
+ #include <iostream>
++#include <tuple>
+ 
+ 
+ #define foreach BOOST_FOREACH
+@@ -73,7 +74,7 @@
+ 
+   double alpha;
+   char chirality;
+-  std::tr1::tie(alpha,chirality) = residue.Alpha();
++  std::tie(alpha,chirality) = residue.Alpha();
+ 
+   uint32 bp[2] = {};
+   char bridgelabel[2] = { ' ', ' ' };
+diff -u -r a/src/primitives-3d.cpp b/src/primitives-3d.cpp
+--- a/src/primitives-3d.cpp	2017-09-21 10:42:09.000000000 +0100
++++ b/src/primitives-3d.cpp	2018-01-30 20:07:57.990636191 +0000
+@@ -15,6 +15,7 @@
+ 
+ #include <cmath>
+ #include <valarray>
++#include <tuple>
+ 
+ #define foreach BOOST_FOREACH
+ 
+@@ -152,7 +153,7 @@
+ 
+ // --------------------------------------------------------------------
+ 
+-std::tr1::tuple<double,MPoint> QuaternionToAngleAxis(MQuaternion q)
++std::tuple<double,MPoint> QuaternionToAngleAxis(MQuaternion q)
+ {
+   if (q.R_component_1() > 1)
+     q = Normalize(q);
+@@ -168,7 +169,7 @@
+ 
+   MPoint axis(q.R_component_2() / s, q.R_component_3() / s, q.R_component_4() / s);
+ 
+-  return std::tr1::make_tuple(angle, axis);
++  return std::make_tuple(angle, axis);
+ }
+ 
+ MPoint CenterPoints(std::vector<MPoint>& points)
+diff -u -r a/src/primitives-3d.h b/src/primitives-3d.h
+--- a/src/primitives-3d.h	2017-09-21 10:42:09.000000000 +0100
++++ b/src/primitives-3d.h	2018-01-30 20:07:48.363394190 +0000
+@@ -12,7 +12,7 @@
+ #pragma once
+ 
+ #include <boost/math/quaternion.hpp>
+-#include <boost/tr1/tuple.hpp>
++#include <tuple>
+ 
+ #include <vector>
+ 
+@@ -71,7 +71,7 @@
+ 
+ MQuaternion Normalize(MQuaternion q);
+ 
+-std::tr1::tuple<double,MPoint> QuaternionToAngleAxis(MQuaternion q);
++std::tuple<double,MPoint> QuaternionToAngleAxis(MQuaternion q);
+ MPoint Centroid(std::vector<MPoint>& points);
+ MPoint CenterPoints(std::vector<MPoint>& points);
+ MQuaternion AlignPoints(const std::vector<MPoint>& a,
+diff -u -r a/src/structure.cpp b/src/structure.cpp
+--- a/src/structure.cpp	2017-09-21 10:42:09.000000000 +0100
++++ b/src/structure.cpp	2018-01-30 20:06:39.429661391 +0000
+@@ -554,7 +554,7 @@
+   return result;
+ }
+ 
+-std::tr1::tuple<double,char> MResidue::Alpha() const
++std::tuple<double,char> MResidue::Alpha() const
+ {
+   double alhpa = 360;
+   char chirality = ' ';
+@@ -571,7 +571,7 @@
+     else
+       chirality = '+';
+   }
+-  return std::tr1::make_tuple(alhpa, chirality);
++  return std::make_tuple(alhpa, chirality);
+ }
+ 
+ double MResidue::Kappa() const
+diff -u -r a/src/structure.h b/src/structure.h
+--- a/src/structure.h	2017-09-21 10:42:09.000000000 +0100
++++ b/src/structure.h	2018-01-30 20:08:27.480377480 +0000
+@@ -10,6 +10,8 @@
+ #include "mas.h"
+ #include "primitives-3d.h"
+ 
++#include <tuple>
++
+ struct MAtom;
+ class MResidue;
+ class MChain;
+@@ -171,7 +173,7 @@
+ 
+   double        Phi() const;
+   double        Psi() const;
+-  std::tr1::tuple<double,char>
++  std::tuple<double,char>
+             Alpha() const;
+   double        Kappa() const;
+   double        TCO() const;
