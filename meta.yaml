@@ -17,6 +17,7 @@ source:
   - tuple.patch
 
 build:
+  number: {{ environ.get("BUILD_NUMBER", 0) }}
   script: |
     make
     make DEST_DIR="$PREFIX" install
